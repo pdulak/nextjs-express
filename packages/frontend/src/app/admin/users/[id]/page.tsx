@@ -55,9 +55,9 @@ export default function UserEditPage({
     setSavingDetails(true);
     try {
       await api.put(`/users/${id}`, { name, email, is_active: isActive });
-      toast.success("User details updated", { style: { backgroundColor: "#f0fdf4" } });
+      toast.success("User details updated");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update user", { style: { backgroundColor: "#fef2f2" } });
+      toast.error(err instanceof Error ? err.message : "Failed to update user");
     } finally {
       setSavingDetails(false);
     }
@@ -70,11 +70,10 @@ export default function UserEditPage({
       await api.put(`/users/${id}/permissions`, {
         permissionCodes: selectedPermissions,
       });
-      toast.success("Permissions updated", { style: { backgroundColor: "#f0fdf4" } });
+      toast.success("Permissions updated");
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to update permissions",
-        { style: { backgroundColor: "#fef2f2" } }
+        err instanceof Error ? err.message : "Failed to update permissions"
       );
     } finally {
       setSavingPermissions(false);
@@ -174,14 +173,13 @@ export default function UserEditPage({
                   await api.put(`/users/${id}/password`, {
                     password: newPassword,
                   });
-                  toast.success("Password updated", { style: { backgroundColor: "#f0fdf4" } });
+                  toast.success("Password updated");
                   setNewPassword("");
                 } catch (err) {
                   toast.error(
                     err instanceof Error
                       ? err.message
-                      : "Failed to update password",
-                    { style: { backgroundColor: "#fef2f2" } }
+                      : "Failed to update password"
                   );
                 } finally {
                   setSavingPassword(false);

@@ -23,6 +23,7 @@ export default function ProfilePage() {
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
 
@@ -49,11 +50,20 @@ export default function ProfilePage() {
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
     setChangingPassword(true);
     try {
       await api.put("/auth/change-password", { currentPassword, newPassword });
       setCurrentPassword("");
       setNewPassword("");
+      setConfirmPassword("");
       toast.success("Password changed");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to change password");
@@ -123,6 +133,18 @@ export default function ProfilePage() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
+                minLength={8}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={8}
               />
             </div>
             <Button type="submit" disabled={changingPassword}>
