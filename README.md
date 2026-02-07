@@ -52,3 +52,13 @@ packages/
       hooks/         Custom hooks (useRequireAuth)
       lib/           Utilities, API client, types
 ```
+
+## Dev SMTP server
+
+For development purposes you can use maildev to send and review emails locally.
+
+```bash
+docker run -p 1080:1080 -p 1025:1025 maildev/maildev
+```
+
+Documentation: https://github.com/maildev/maildev
