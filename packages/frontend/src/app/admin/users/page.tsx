@@ -63,7 +63,7 @@ export default function UsersPage() {
               </TableCell>
               <TableCell>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link href={`/users/${u.id}`}>Edit</Link>
+                  <Link href={`/admin/users/${u.id}`}>Edit</Link>
                 </Button>
               </TableCell>
             </TableRow>

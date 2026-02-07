@@ -19,3 +19,8 @@ export interface PermissionItem {
   name: string;
   code: string;
 }
+
+export interface FeatureFlags {
+  registrationActive: boolean;
+  forgotPasswordActive: boolean;
+}

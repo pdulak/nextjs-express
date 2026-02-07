@@ -11,7 +11,9 @@
       "Bash(fuser:*)",
       "Bash(pnpm tsc:*)",
       "Bash(pnpm list:*)",
-      "Bash(pnpm dev)"
+      "Bash(pnpm dev)",
+      "Bash(xargs kill:*)",
+      "Bash(curl:*)"
     ]
   }
 }

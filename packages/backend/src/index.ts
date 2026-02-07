@@ -5,9 +5,10 @@ import passport from "./passport";
 import sequelize from "./config/database";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
+import featureFlagRoutes from "./routes/feature-flags";
 
 // Import models to register associations
-import "./models";
+import { FeatureFlag } from "./models";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -38,6 +39,7 @@ app.use(passport.session());
 
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/feature-flags", featureFlagRoutes);
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
@@ -47,6 +49,15 @@ async function start() {
   try {
     await sequelize.sync();
     console.log("Database synced");
+
+    const flagCount = await FeatureFlag.count();
+    if (flagCount === 0) {
+      await FeatureFlag.create({
+        registrationActive: true,
+        forgotPasswordActive: true,
+      });
+      console.log("Feature flags seeded");
+    }
 
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
