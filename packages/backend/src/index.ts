@@ -10,9 +10,10 @@ import sequelize from "./config/database";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
 import featureFlagRoutes from "./routes/feature-flags";
+import bloodPressureRoutes from "./routes/blood-pressure";
 
 // Import models to register associations
-import { FeatureFlag, User, Permission, UserPermission } from "./models";
+import { FeatureFlag, User, Permission, UserPermission, BloodPressure } from "./models";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -44,6 +45,7 @@ app.use(passport.session());
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/feature-flags", featureFlagRoutes);
+app.use("/blood-pressure", bloodPressureRoutes);
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });

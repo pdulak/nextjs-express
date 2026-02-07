@@ -24,3 +24,14 @@ export interface FeatureFlags {
   registrationActive: boolean;
   forgotPasswordActive: boolean;
 }
+
+export interface BloodPressureRecord {
+  id: number;
+  dateTime: string;
+  systolic: number;
+  diastolic: number;
+  pulse: number;
+  weight: number;
+  createdAt: string;
+  updatedAt: string;
+}

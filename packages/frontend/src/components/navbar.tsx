@@ -53,6 +53,9 @@ export function Navbar() {
                   </DropdownMenu>
                 )}
                 <Button variant="ghost" size="sm" asChild>
+                  <Link href="/blood-pressure">Blood Pressure</Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
                   <Link href="/profile">Profile</Link>
                 </Button>
                 <Button
