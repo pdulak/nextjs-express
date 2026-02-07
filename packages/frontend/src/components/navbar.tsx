@@ -29,6 +29,9 @@ export function Navbar() {
 
         {!loading && (
           <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" asChild>
+                <Link href="/investment">Investment</Link>
+            </Button>
             {user ? (
               <>
                 {user.permissions.includes("admin") && (
