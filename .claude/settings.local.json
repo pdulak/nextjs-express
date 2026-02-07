@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init:*)",
+      "Bash(pnpm create:*)",
+      "Bash(pnpm dlx:*)",
+      "Bash(pnpm install:*)",
+      "Bash(kill:*)",
+      "Bash(pkill:*)",
+      "Bash(lsof:*)",
+      "Bash(fuser:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(pnpm list:*)",
+      "Bash(pnpm dev)"
+    ]
+  }
+}

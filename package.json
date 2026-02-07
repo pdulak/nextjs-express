@@ -1,0 +1,8 @@
+{
+  "name": "nextjs-express",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel --filter './packages/*' dev",
+    "seed": "pnpm --filter backend seed"
+  }
+}
