@@ -11,6 +11,10 @@ export const localStrategy = new LocalStrategy(
         return done(null, false, { message: "Invalid email or password" });
       }
 
+      if (!user.is_active) {
+        return done(null, false, { message: "Account is not activated" });
+      }
+
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return done(null, false, { message: "Invalid email or password" });

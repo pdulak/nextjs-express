@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +81,15 @@ export default function LoginPage() {
             <Button type="submit" disabled={submitting}>
               {submitting ? "Signing in..." : "Sign in"}
             </Button>
+
+            <div className="flex justify-between text-sm">
+              <Link href="/register" className="text-muted-foreground underline">
+                Create account
+              </Link>
+              <Link href="/forgot-password" className="text-muted-foreground underline">
+                Forgot password?
+              </Link>
+            </div>
           </form>
 
           <Separator className="my-6" />

@@ -14,6 +14,7 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare email: string | null;
   declare password: string | null;
   declare is_active: boolean | null;
+  declare activation_hash: string | null;
   declare reset_hash: string | null;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -31,6 +32,7 @@ User.init(
     email: DataTypes.STRING,
     password: DataTypes.STRING,
     is_active: DataTypes.BOOLEAN,
+    activation_hash: DataTypes.STRING,
     reset_hash: DataTypes.STRING,
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,

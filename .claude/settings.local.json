@@ -13,7 +13,8 @@
       "Bash(pnpm list:*)",
       "Bash(pnpm dev)",
       "Bash(xargs kill:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(pnpm add:*)"
     ]
   }
 }
