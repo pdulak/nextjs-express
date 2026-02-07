@@ -38,7 +38,8 @@ router.post("/register", async (req, res) => {
     res.status(201).json({
       message: "Registration successful. Please check your email to activate your account.",
     });
-  } catch {
+  } catch (err) {
+    console.error("Registration error:", err);
     res.status(500).json({ message: "Registration failed" });
   }
 });

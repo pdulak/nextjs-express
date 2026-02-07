@@ -51,7 +51,7 @@ app.get("/health", (_req, res) => {
 
 async function start() {
   try {
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
     console.log("Database synced");
 
     const flagCount = await FeatureFlag.count();
