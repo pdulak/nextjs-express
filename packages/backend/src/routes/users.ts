@@ -1,4 +1,5 @@
 import { Router } from "express";
+import bcrypt from "bcryptjs";
 import { User, Permission, UserPermission } from "../models";
 import { isAuthenticated, hasPermission } from "../middleware/auth";
 
@@ -93,6 +94,29 @@ router.put("/:id", async (req, res) => {
     });
   } catch {
     res.status(500).json({ message: "Failed to update user" });
+  }
+});
+
+router.put("/:id/password", async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { password } = req.body;
+    if (!password || password.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 8 characters" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await user.update({ password: hashedPassword });
+
+    res.json({ message: "Password updated" });
+  } catch {
+    res.status(500).json({ message: "Failed to update password" });
   }
 });
 

@@ -29,7 +29,9 @@ export default function UserEditPage({
   const [email, setEmail] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [newPassword, setNewPassword] = useState("");
   const [savingDetails, setSavingDetails] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
   const [savingPermissions, setSavingPermissions] = useState(false);
 
   useEffect(() => {
@@ -126,6 +128,51 @@ export default function UserEditPage({
             </div>
             <Button type="submit" disabled={savingDetails}>
               {savingDetails ? "Saving..." : "Save Details"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Reset Password</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              setSavingPassword(true);
+              try {
+                await api.put(`/users/${id}/password`, {
+                  password: newPassword,
+                });
+                toast.success("Password updated");
+                setNewPassword("");
+              } catch (err) {
+                toast.error(
+                  err instanceof Error
+                    ? err.message
+                    : "Failed to update password"
+                );
+              } finally {
+                setSavingPassword(false);
+              }
+            }}
+            className="flex flex-col gap-4"
+          >
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={8}
+              />
+            </div>
+            <Button type="submit" disabled={savingPassword}>
+              {savingPassword ? "Saving..." : "Reset Password"}
             </Button>
           </form>
         </CardContent>
