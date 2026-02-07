@@ -12,7 +12,7 @@ import userRoutes from "./routes/users";
 import featureFlagRoutes from "./routes/feature-flags";
 
 // Import models to register associations
-import { FeatureFlag } from "./models";
+import { FeatureFlag, User, Permission, UserPermission } from "./models";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -51,17 +51,11 @@ app.get("/health", (_req, res) => {
 
 async function start() {
   try {
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
     console.log("Database synced");
 
-    const flagCount = await FeatureFlag.count();
-    if (flagCount === 0) {
-      await FeatureFlag.create({
-        registrationActive: true,
-        forgotPasswordActive: true,
-      });
-      console.log("Feature flags seeded");
-    }
+    await seedFeatureFlags();
+    await seedPermissions();
 
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
@@ -70,6 +64,32 @@ async function start() {
     console.error("Failed to start server:", err);
     process.exit(1);
   }
+}
+
+async function seedFeatureFlags() {
+    const flagCount = await FeatureFlag.count();
+    if (flagCount === 0) {
+        await FeatureFlag.create({
+            registrationActive: true,
+            forgotPasswordActive: true,
+        });
+    }
+}
+
+async function seedPermissions() {
+    const userCount = await User.count();
+    if (userCount > 0) {
+        // make sure that user #1 has Admin permission set
+        const adminPermission = await Permission.findOrCreate({
+            where: { code: "admin" },
+            defaults: { name: "Admin", code: "admin" },
+        });
+        await UserPermission.findOrCreate({
+            where: { userId: 1, permissionId: adminPermission[0].id },
+            defaults: { userId: 1, permissionId: adminPermission[0].id },
+        });
+        console.log("Admin permission set for user #1");
+    }
 }
 
 start();
