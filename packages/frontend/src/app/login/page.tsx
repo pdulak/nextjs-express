@@ -95,7 +95,7 @@ export default function LoginPage() {
           <Separator className="my-6" />
 
           <Button variant="outline" className="w-full" asChild>
-            <a href="http://localhost:3001/auth/google">
+            <a href={`${process.env.API_URL || "http://localhost:3001"}/auth/google`}>
               Sign in with Google
             </a>
           </Button>

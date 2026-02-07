@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3001";
+const BASE_URL = process.env.API_URL || "http://localhost:3001";
 
 async function request(method: string, path: string, body?: unknown) {
   const res = await fetch(`${BASE_URL}${path}`, {

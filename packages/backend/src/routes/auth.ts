@@ -136,7 +136,7 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (_req, res) => {
-    res.redirect("http://localhost:3000");
+    res.redirect(process.env.WEBSITE_URL || "http://localhost:3000");
   }
 );
 
