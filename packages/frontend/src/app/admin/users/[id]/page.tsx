@@ -55,9 +55,9 @@ export default function UserEditPage({
     setSavingDetails(true);
     try {
       await api.put(`/users/${id}`, { name, email, is_active: isActive });
-      toast.success("User details updated");
+      toast.success("User details updated", { style: { backgroundColor: "#f0fdf4" } });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update user");
+      toast.error(err instanceof Error ? err.message : "Failed to update user", { style: { backgroundColor: "#fef2f2" } });
     } finally {
       setSavingDetails(false);
     }
@@ -70,10 +70,11 @@ export default function UserEditPage({
       await api.put(`/users/${id}/permissions`, {
         permissionCodes: selectedPermissions,
       });
-      toast.success("Permissions updated");
+      toast.success("Permissions updated", { style: { backgroundColor: "#f0fdf4" } });
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to update permissions"
+        err instanceof Error ? err.message : "Failed to update permissions",
+        { style: { backgroundColor: "#fef2f2" } }
       );
     } finally {
       setSavingPermissions(false);
@@ -91,118 +92,121 @@ export default function UserEditPage({
   if (authLoading || !authUser || !userDetail) return null;
 
   return (
-    <div className="flex flex-col gap-6 max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold">Edit User</h1>
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">Edit User</h1>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>User Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleDetailsSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="is_active"
-                checked={isActive}
-                onCheckedChange={(checked) => setIsActive(checked === true)}
-              />
-              <Label htmlFor="is_active">Active</Label>
-            </div>
-            <Button type="submit" disabled={savingDetails}>
-              {savingDetails ? "Saving..." : "Save Details"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Reset Password</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setSavingPassword(true);
-              try {
-                await api.put(`/users/${id}/password`, {
-                  password: newPassword,
-                });
-                toast.success("Password updated");
-                setNewPassword("");
-              } catch (err) {
-                toast.error(
-                  err instanceof Error
-                    ? err.message
-                    : "Failed to update password"
-                );
-              } finally {
-                setSavingPassword(false);
-              }
-            }}
-            className="flex flex-col gap-4"
-          >
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="new-password">New Password</Label>
-              <Input
-                id="new-password"
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                minLength={8}
-              />
-            </div>
-            <Button type="submit" disabled={savingPassword}>
-              {savingPassword ? "Saving..." : "Reset Password"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Permissions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={handlePermissionsSubmit}
-            className="flex flex-col gap-4"
-          >
-            {allPermissions.map((perm) => (
-              <div key={perm.id} className="flex items-center gap-2">
-                <Checkbox
-                  id={`perm-${perm.code}`}
-                  checked={selectedPermissions.includes(perm.code)}
-                  onCheckedChange={() => togglePermission(perm.code)}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="md:row-span-2">
+          <CardHeader>
+            <CardTitle>User Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleDetailsSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
-                <Label htmlFor={`perm-${perm.code}`}>{perm.name}</Label>
               </div>
-            ))}
-            <Button type="submit" disabled={savingPermissions}>
-              {savingPermissions ? "Saving..." : "Save Permissions"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="is_active"
+                  checked={isActive}
+                  onCheckedChange={(checked) => setIsActive(checked === true)}
+                />
+                <Label htmlFor="is_active">Active</Label>
+              </div>
+              <Button type="submit" disabled={savingDetails}>
+                {savingDetails ? "Saving..." : "Save Details"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Permissions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={handlePermissionsSubmit}
+              className="flex flex-col gap-4"
+            >
+              {allPermissions.map((perm) => (
+                <div key={perm.id} className="flex items-center gap-2">
+                  <Checkbox
+                    id={`perm-${perm.code}`}
+                    checked={selectedPermissions.includes(perm.code)}
+                    onCheckedChange={() => togglePermission(perm.code)}
+                  />
+                  <Label htmlFor={`perm-${perm.code}`}>{perm.name}</Label>
+                </div>
+              ))}
+              <Button type="submit" disabled={savingPermissions}>
+                {savingPermissions ? "Saving..." : "Save Permissions"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Reset Password</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setSavingPassword(true);
+                try {
+                  await api.put(`/users/${id}/password`, {
+                    password: newPassword,
+                  });
+                  toast.success("Password updated", { style: { backgroundColor: "#f0fdf4" } });
+                  setNewPassword("");
+                } catch (err) {
+                  toast.error(
+                    err instanceof Error
+                      ? err.message
+                      : "Failed to update password",
+                    { style: { backgroundColor: "#fef2f2" } }
+                  );
+                } finally {
+                  setSavingPassword(false);
+                }
+              }}
+              className="flex flex-col gap-4"
+            >
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={8}
+                />
+              </div>
+              <Button type="submit" disabled={savingPassword}>
+                {savingPassword ? "Saving..." : "Reset Password"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
