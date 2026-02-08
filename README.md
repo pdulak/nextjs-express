@@ -9,6 +9,19 @@ Full-stack application with authentication and user management.
 
 ## Getting Started
 
+### 1. External Dependencies
+
+For development, you need `maildev` running to capture emails sent by the application (e.g., password resets).
+
+```bash
+docker run -d -p 1080:1080 -p 1025:1025 --name maildev maildev/maildev
+```
+
+- **Web UI**: http://localhost:1080
+- **SMTP**: localhost:1025
+
+### 2. Installation & Setup
+
 ```bash
 # Install dependencies
 pnpm install
@@ -16,7 +29,7 @@ pnpm install
 # Copy environment variables
 cp .env.example .env
 
-# Seed the database with an admin user
+# Seed the database with an admin user (and default permissions)
 pnpm seed
 
 # Start development servers
@@ -31,6 +44,7 @@ The frontend runs on http://localhost:3000 and the backend on http://localhost:3
 | --- | --- |
 | `pnpm dev` | Start both frontend and backend in dev mode |
 | `pnpm seed` | Create initial admin user and permissions |
+| `pnpm build` | Build the project |
 
 ## Project Structure
 
@@ -39,10 +53,10 @@ packages/
   backend/           Express API server
     src/
       config/        Database configuration
-      middleware/     Auth middleware (isAuthenticated, hasPermission)
+      middleware/    Auth middleware (isAuthenticated, hasPermission)
       models/        Sequelize models (User, Permission, UserPermission)
       passport/      Passport strategies (local, Google OAuth)
-      routes/        API routes (auth, users)
+      routes/        API routes (auth, users, feature-flags, blood-pressure)
       scripts/       CLI scripts (seed)
   frontend/          Next.js application
     src/
@@ -53,12 +67,121 @@ packages/
       lib/           Utilities, API client, types
 ```
 
-## Dev SMTP server
+## Database & Sequelize
 
-For development purposes you can use maildev to send and review emails locally.
+The backend uses **Sequelize** with **SQLite**.
+
+### Initialization
+
+When you run the server (`pnpm dev` or `tsx src/index.ts`), the application automatically syncs the database models with the database file (`database.sqlite`).
+This `sequelize.sync()` call will create tables if they do not exist.
+
+### Seeding
+
+To populate the database with initial data (Admin user, default permissions, feature flags):
 
 ```bash
-docker run -p 1080:1080 -p 1025:1025 maildev/maildev
+pnpm seed
 ```
 
-Documentation: https://github.com/maildev/maildev
+This runs `packages/backend/src/scripts/seed.ts`.
+
+### Migrations
+
+For schema changes (adding columns, new tables) that you want to version control, use `sequelize-cli`.
+
+> [!IMPORTANT]
+> You must run these commands from the `packages/backend` directory.
+
+#### Creating a Migration
+
+To create a new migration file:
+
+```bash
+cd packages/backend
+pnpm exec sequelize-cli migration:generate --name <migration-name>
+# Example: pnpm exec sequelize-cli migration:generate --name add-age-to-users
+```
+
+This creates a file in `packages/backend/migrations`. Edit this file to define your `up` and `down` logic.
+
+**Example 1: Adding a new column**
+
+```javascript
+// migrations/XXXXXXXXXXXXXX-add-age-to-users.js
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.addColumn('Users', 'age', {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    });
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.removeColumn('Users', 'age');
+  }
+};
+```
+
+**Example 2: Creating a new table**
+
+```javascript
+// migrations/XXXXXXXXXXXXXX-create-posts.js
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('Posts', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      title: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      userId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Users',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      }
+    });
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('Posts');
+  }
+};
+```
+
+#### Running Migrations
+
+```bash
+cd packages/backend
+pnpm exec sequelize-cli db:migrate
+```
+
+#### Undoing Migrations
+
+```bash
+cd packages/backend
+pnpm exec sequelize-cli db:migrate:undo
+```
+
+## Tech Stack Overview
+
+- **Frontend**: Next.js 16, React 19, Tailwind CSS v4
+- **Backend**: Express, Passport.js, Sequelize, SQLite
+- **Package Manager**: pnpm workspaces
