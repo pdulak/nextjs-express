@@ -18,9 +18,25 @@ import { FeatureFlag, User, Permission, UserPermission, BloodPressure } from "./
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+app.set("trust proxy", 1);
+
+const allowedOrigins = [
+  process.env.WEBSITE_URL || "http://localhost:3000",
+  "https://misc-fe.dulare.com",
+  "https://misc.dulare.com",
+];
+
 app.use(
   cors({
-    origin: process.env.WEBSITE_URL || "http://localhost:3000",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== "production") {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -34,6 +50,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "lax" : "lax",
+      domain: process.env.COOKIE_DOMAIN || undefined, // e.g., .dulare.com
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
   })
@@ -69,29 +87,29 @@ async function start() {
 }
 
 async function seedFeatureFlags() {
-    const flagCount = await FeatureFlag.count();
-    if (flagCount === 0) {
-        await FeatureFlag.create({
-            registrationActive: true,
-            forgotPasswordActive: true,
-        });
-    }
+  const flagCount = await FeatureFlag.count();
+  if (flagCount === 0) {
+    await FeatureFlag.create({
+      registrationActive: true,
+      forgotPasswordActive: true,
+    });
+  }
 }
 
 async function seedPermissions() {
-    const userCount = await User.count();
-    if (userCount > 0) {
-        // make sure that user #1 has Admin permission set
-        const adminPermission = await Permission.findOrCreate({
-            where: { code: "admin" },
-            defaults: { name: "Admin", code: "admin" },
-        });
-        await UserPermission.findOrCreate({
-            where: { userId: 1, permissionId: adminPermission[0].id },
-            defaults: { userId: 1, permissionId: adminPermission[0].id },
-        });
-        console.log("Admin permission set for user #1");
-    }
+  const userCount = await User.count();
+  if (userCount > 0) {
+    // make sure that user #1 has Admin permission set
+    const adminPermission = await Permission.findOrCreate({
+      where: { code: "admin" },
+      defaults: { name: "Admin", code: "admin" },
+    });
+    await UserPermission.findOrCreate({
+      where: { userId: 1, permissionId: adminPermission[0].id },
+      defaults: { userId: 1, permissionId: adminPermission[0].id },
+    });
+    console.log("Admin permission set for user #1");
+  }
 }
 
 start();
