@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useABCJS } from "@/hooks/use-abcjs";
 import type { MusicContents } from "@/lib/types";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 
 interface MusicPlayerProps {
   contents: MusicContents;
@@ -178,13 +176,6 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
   const cursorControlRef = useRef<CursorController | null>(null);
   const [voices, setVoices] = useState<Voice[]>([]);
   const [currentAbcString, setCurrentAbcString] = useState("");
-  const [sheetWidth, setSheetWidth] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('music-sheet-width');
-      return saved ? parseInt(saved, 10) : 50;
-    }
-    return 50;
-  });
 
   // Parse voice definitions from ABC string
   const parseVoiceDefinitions = (abcString: string): Voice[] => {
@@ -242,11 +233,6 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
     setVoices(parsedVoices);
   }, [contents]);
 
-  // Save sheet width preference
-  useEffect(() => {
-    localStorage.setItem('music-sheet-width', String(sheetWidth));
-  }, [sheetWidth]);
-
   // Render ABC notation and setup audio
   useEffect(() => {
     if (!isLoaded || !ABCJS || !containerRef.current || !audioRef.current) return;
@@ -283,8 +269,6 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
       const visObj = ABCJS.renderAbc("music-viewer", abcString, {
         responsive: "resize",
         add_classes: true,
-        paddingright: sheetWidth,
-        paddingleft: sheetWidth,
       })[0];
 
       // Setup audio if supported
@@ -329,7 +313,7 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
       console.error("Error rendering ABC:", error);
       containerRef.current.innerHTML = '<p class="text-red-500 p-4">Error rendering music notation</p>';
     }
-  }, [isLoaded, ABCJS, currentAbcString, sheetWidth]);
+  }, [isLoaded, ABCJS, currentAbcString]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -390,20 +374,6 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
             ))}
           </div>
         )}
-
-        <div className="flex items-center space-x-4 max-w-md">
-          <Label htmlFor="sheet-width" className="whitespace-nowrap">Sheet width:</Label>
-          <Slider
-            id="sheet-width"
-            min={0}
-            max={100}
-            step={5}
-            value={[sheetWidth]}
-            onValueChange={(values) => setSheetWidth(values[0])}
-            className="flex-1"
-          />
-          <span className="text-sm text-muted-foreground w-12">{sheetWidth}%</span>
-        </div>
       </div>
 
       <div id="music-viewer" ref={containerRef} className="music-notation" />
