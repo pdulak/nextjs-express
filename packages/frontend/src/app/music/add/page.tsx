@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { api } from "@/lib/api";
@@ -16,22 +16,35 @@ export default function AddMusicPage() {
   const [title, setTitle] = useState("");
   const [abcContent, setAbcContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const contents: MusicContents = {
     allVoices: abcContent,
     voices: [],
   };
 
+  // Auto-hide success message after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => setSuccessMessage(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setSuccessMessage("");
 
     try {
       await api.post("/music", {
         title,
         contents: JSON.stringify(contents),
       });
-      router.push("/");
+      setSuccessMessage("✓ Music sheet created successfully!");
+      // Clear form for next entry
+      setTitle("");
+      setAbcContent("");
     } catch (error) {
       handleMusicError(error, "Failed to create music sheet");
     } finally {
@@ -51,6 +64,7 @@ export default function AddMusicPage() {
           onCancel={() => router.push("/")}
           submitting={submitting}
           mode="add"
+          successMessage={successMessage}
         />
       }
       preview={<MusicPreview contents={contents} />}

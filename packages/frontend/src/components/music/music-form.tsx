@@ -2,6 +2,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface MusicFormProps {
   title: string;
@@ -13,6 +24,9 @@ interface MusicFormProps {
   onDelete?: () => void;
   submitting: boolean;
   mode: "add" | "edit";
+  successMessage?: string;
+  deleteDialogOpen?: boolean;
+  onDeleteDialogChange?: (open: boolean) => void;
 }
 
 export function MusicForm({
@@ -25,6 +39,9 @@ export function MusicForm({
   onDelete,
   submitting,
   mode,
+  successMessage,
+  deleteDialogOpen,
+  onDeleteDialogChange,
 }: MusicFormProps) {
   const isEditMode = mode === "edit";
 
@@ -42,6 +59,12 @@ export function MusicForm({
             }
           </p>
         </div>
+
+        {successMessage && (
+          <div className="bg-green-100 dark:bg-green-900/20 border border-green-500 text-green-700 dark:text-green-400 px-4 py-3 rounded">
+            {successMessage}
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="title">Title</Label>
@@ -79,16 +102,33 @@ export function MusicForm({
           variant="outline"
           onClick={onCancel}
         >
-          Cancel
+          Back to the list
         </Button>
         {isEditMode && onDelete && (
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={onDelete}
-          >
-            Delete
-          </Button>
+          <AlertDialog open={deleteDialogOpen} onOpenChange={onDeleteDialogChange}>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="destructive"
+              >
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent position="bottom-left">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Music Sheet</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this music sheet? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction variant="destructive" onClick={onDelete}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
       </div>
     </form>

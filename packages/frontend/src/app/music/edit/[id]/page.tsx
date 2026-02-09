@@ -21,6 +21,8 @@ export default function EditMusicPage() {
   const [title, setTitle] = useState("");
   const [abcContent, setAbcContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Sync form state when sheet data loads
   useEffect(() => {
@@ -30,6 +32,14 @@ export default function EditMusicPage() {
     }
   }, [sheet, initialContents]);
 
+  // Auto-hide success message after 3 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => setSuccessMessage(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
   const contents: MusicContents = {
     allVoices: abcContent,
     voices: [],
@@ -38,13 +48,14 @@ export default function EditMusicPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setSuccessMessage("");
 
     try {
       await api.put(`/music/${id}`, {
         title,
         contents: JSON.stringify(contents),
       });
-      router.push("/");
+      setSuccessMessage("✓ Music sheet saved successfully!");
     } catch (error) {
       handleMusicError(error, "Failed to update music sheet");
     } finally {
@@ -53,10 +64,6 @@ export default function EditMusicPage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this music sheet?")) {
-      return;
-    }
-
     try {
       await api.delete(`/music/${id}`);
       router.push("/");
@@ -86,9 +93,12 @@ export default function EditMusicPage() {
           onDelete={handleDelete}
           submitting={submitting}
           mode="edit"
+          successMessage={successMessage}
+          deleteDialogOpen={deleteDialogOpen}
+          onDeleteDialogChange={setDeleteDialogOpen}
         />
       }
-      preview={<MusicPreview contents={contents} />}
+      preview={<MusicPreview contents={contents} disableSticky={deleteDialogOpen} />}
     />
   );
 }

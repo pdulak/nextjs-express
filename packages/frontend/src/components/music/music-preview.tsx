@@ -6,6 +6,7 @@ import type { MusicContents } from "@/lib/types";
 
 interface MusicPreviewProps {
   contents: MusicContents;
+  disableSticky?: boolean;
 }
 
 interface Voice {
@@ -65,7 +66,7 @@ class CursorControl {
   }
 }
 
-export function MusicPreview({ contents }: MusicPreviewProps) {
+export function MusicPreview({ contents, disableSticky = false }: MusicPreviewProps) {
   const { isLoaded, ABCJS } = useABCJS();
   const containerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLDivElement>(null);
@@ -273,7 +274,7 @@ export function MusicPreview({ contents }: MusicPreviewProps) {
 
   return (
     <div className="flex flex-col h-full overflow-y-auto">
-      <div className="sticky top-0 z-10 bg-background border-b p-4 space-y-2">
+      <div className={`${disableSticky ? '' : 'sticky top-0 z-10'} bg-background border-b p-4 space-y-2`}>
         <div id="audio-controls" ref={audioRef} />
         {voices.length > 0 && (
           <div className="flex flex-wrap gap-3 pt-2 border-t">
