@@ -37,14 +37,13 @@ export default function AddMusicPage() {
     setSuccessMessage("");
 
     try {
-      await api.post("/music", {
+      const response = await api.post("/music", {
         title,
         contents: JSON.stringify(contents),
       });
-      setSuccessMessage("✓ Music sheet created successfully!");
-      // Clear form for next entry
-      setTitle("");
-      setAbcContent("");
+      // Navigate to edit page with newly created ID
+      const newId = response.id;
+      router.push(`/music/edit/${newId}?created=true`);
     } catch (error) {
       handleMusicError(error, "Failed to create music sheet");
     } finally {

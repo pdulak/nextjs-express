@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 import { useMusicSheet } from "@/hooks/use-music-sheet";
 import { api } from "@/lib/api";
@@ -15,6 +15,7 @@ export default function EditMusicPage() {
   useRequireAuth();
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = params.id as string;
 
   const { sheet, contents: initialContents, loading } = useMusicSheet(id);
@@ -23,6 +24,15 @@ export default function EditMusicPage() {
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // Show success message if redirected from add page
+  useEffect(() => {
+    if (searchParams.get("created") === "true") {
+      setSuccessMessage("✓ Music sheet created successfully!");
+      // Clean up URL by removing query parameter
+      router.replace(`/music/edit/${id}`, { scroll: false });
+    }
+  }, [searchParams, router, id]);
 
   // Sync form state when sheet data loads
   useEffect(() => {
