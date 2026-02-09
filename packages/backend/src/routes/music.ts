@@ -8,7 +8,7 @@ const router = Router();
 router.get("/", async (req, res) => {
   try {
     const records = await Music.findAll({
-      order: [["updatedAt", "DESC"]],
+      order: [["title", "ASC"]],
     });
     res.json(records);
   } catch {

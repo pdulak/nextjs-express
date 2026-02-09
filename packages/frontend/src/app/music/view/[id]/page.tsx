@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
-import { api } from "@/lib/api";
-import type { MusicContents, MusicSheet } from "@/lib/types";
+import { useMusicSheet } from "@/hooks/use-music-sheet";
 import { Button } from "@/components/ui/button";
 import { MusicPlayer } from "@/components/music/music-player";
 import Link from "next/link";
@@ -15,31 +13,7 @@ export default function ViewMusicPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const [loading, setLoading] = useState(true);
-  const [sheet, setSheet] = useState<MusicSheet | null>(null);
-  const [contents, setContents] = useState<MusicContents>({
-    allVoices: "",
-    voices: [],
-  });
-
-  useEffect(() => {
-    fetchSheet();
-  }, [id]);
-
-  const fetchSheet = async () => {
-    try {
-      const data: MusicSheet = await api.get(`/music/${id}`);
-      setSheet(data);
-      const parsedContents: MusicContents = JSON.parse(data.contents);
-      setContents(parsedContents);
-    } catch (error) {
-      console.error("Error fetching music sheet:", error);
-      alert(error instanceof Error ? error.message : "Failed to load music sheet");
-      router.push("/");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { sheet, contents, loading } = useMusicSheet(id);
 
   if (loading) {
     return (

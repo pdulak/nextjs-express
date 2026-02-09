@@ -292,7 +292,7 @@ export function MusicPreview({ contents }: MusicPreviewProps) {
         )}
       </div>
       <div className="flex-1 p-4">
-        <div id="music-notation-container" ref={containerRef} className="music-notation" />
+        <div id="music-notation-container" ref={containerRef} className="music-notation pr-4" />
       </div>
     </div>
   );
