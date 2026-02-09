@@ -356,7 +356,7 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
         <h1 className="text-3xl font-bold">{title}</h1>
       </div>
 
-      <div className="space-y-3 border-b pb-4">
+      <div className="sticky top-0 z-10 bg-background space-y-3 border-b pb-4 pt-2">
         <div id="audio-controls" ref={audioRef} />
 
         {voices.length > 0 && (
