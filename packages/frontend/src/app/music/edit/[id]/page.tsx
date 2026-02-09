@@ -87,9 +87,9 @@ export default function EditMusicPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)]">
+    <div className="fixed inset-0 top-14 flex">
       {/* Left side - Form */}
-      <div className="flex-1 border-r overflow-y-auto p-6">
+      <div className="w-1/2 border-r overflow-y-auto p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">Edit Music Sheet</h1>
@@ -144,7 +144,7 @@ export default function EditMusicPage() {
       </div>
 
       {/* Right side - Preview */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="w-1/2 overflow-y-auto">
         <MusicPreview contents={contents} />
       </div>
     </div>
