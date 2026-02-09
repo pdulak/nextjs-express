@@ -35,3 +35,16 @@ export interface BloodPressureRecord {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface MusicSheet {
+  id: number;
+  title: string;
+  contents: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MusicContents {
+  allVoices: string;
+  voices: never[];
+}
