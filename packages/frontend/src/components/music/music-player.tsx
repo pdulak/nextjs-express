@@ -3,13 +3,21 @@
 import { useEffect, useRef, useState } from "react";
 import { useABCJS } from "@/hooks/use-abcjs";
 import type { MusicContents } from "@/lib/types";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
 interface MusicPlayerProps {
   contents: MusicContents;
   title: string;
+}
+
+interface Voice {
+  lineIndex: number;
+  midiLineIndex: number;
+  name: string;
+  program: number;
+  originalProgram: number;
+  enabled: boolean;
 }
 
 // CursorController class (ported from source)
@@ -168,12 +176,8 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
   const synthRef = useRef<any>(null);
   const audioContextRef = useRef<any>(null);
   const cursorControlRef = useRef<CursorController | null>(null);
-  const [followCursor, setFollowCursor] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('music-follow-cursor') === 'true';
-    }
-    return true;
-  });
+  const [voices, setVoices] = useState<Voice[]>([]);
+  const [currentAbcString, setCurrentAbcString] = useState("");
   const [sheetWidth, setSheetWidth] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('music-sheet-width');
@@ -182,13 +186,61 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
     return 50;
   });
 
-  // Save follow cursor preference
-  useEffect(() => {
-    localStorage.setItem('music-follow-cursor', String(followCursor));
-    if (cursorControlRef.current) {
-      cursorControlRef.current.setFollowCursor(followCursor);
+  // Parse voice definitions from ABC string
+  const parseVoiceDefinitions = (abcString: string): Voice[] => {
+    const voiceList: Voice[] = [];
+    const lines = abcString.split('\n');
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith('V:') && line.includes('nm="')) {
+        // Extract voice name from nm="Voice Name"
+        const nameMatch = line.match(/nm="([^"]+)"/);
+        const voiceName = nameMatch ? nameMatch[1] : `Voice ${voiceList.length + 1}`;
+
+        // Check for MIDI program in the next line
+        const nextLine = i + 1 < lines.length ? lines[i + 1].trim() : '';
+
+        if (nextLine.startsWith('%%MIDI program')) {
+          const midiProgram = parseInt(nextLine.split('%%MIDI program')[1].trim(), 10);
+
+          voiceList.push({
+            lineIndex: i,
+            midiLineIndex: i + 1,
+            name: voiceName,
+            program: midiProgram,
+            originalProgram: midiProgram,
+            enabled: true
+          });
+        }
+      }
     }
-  }, [followCursor]);
+
+    return voiceList;
+  };
+
+  // Update ABC string with new MIDI program values based on voice toggle states
+  const updateVoiceMidiPrograms = (abcString: string, voiceList: Voice[]): string => {
+    const lines = abcString.split('\n');
+
+    voiceList.forEach(voice => {
+      if (voice.midiLineIndex < lines.length) {
+        // Set program to 200 (mute) if disabled, or original value if enabled
+        const programValue = voice.enabled ? voice.originalProgram : 200;
+        lines[voice.midiLineIndex] = `%%MIDI program ${programValue}`;
+      }
+    });
+
+    return lines.join('\n');
+  };
+
+  // Parse voices when contents change
+  useEffect(() => {
+    const abcString = contents.allVoices || "";
+    setCurrentAbcString(abcString);
+    const parsedVoices = parseVoiceDefinitions(abcString);
+    setVoices(parsedVoices);
+  }, [contents]);
 
   // Save sheet width preference
   useEffect(() => {
@@ -199,7 +251,7 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
   useEffect(() => {
     if (!isLoaded || !ABCJS || !containerRef.current || !audioRef.current) return;
 
-    const abcString = contents.allVoices;
+    const abcString = currentAbcString;
     if (!abcString || !abcString.trim()) {
       containerRef.current.innerHTML = "";
       return;
@@ -222,9 +274,9 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
         }
       }
 
-      // Create cursor controller
+      // Create cursor controller (always enabled)
       const cursorControl = new CursorController("music-viewer");
-      cursorControl.setFollowCursor(followCursor);
+      cursorControl.setFollowCursor(true);
       cursorControlRef.current = cursorControl;
 
       // Render the score
@@ -277,7 +329,7 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
       console.error("Error rendering ABC:", error);
       containerRef.current.innerHTML = '<p class="text-red-500 p-4">Error rendering music notation</p>';
     }
-  }, [isLoaded, ABCJS, contents, sheetWidth, followCursor]);
+  }, [isLoaded, ABCJS, currentAbcString, sheetWidth]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -299,6 +351,17 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
     };
   }, []);
 
+  const handleVoiceToggle = (voiceIndex: number) => {
+    const updatedVoices = voices.map((v, idx) =>
+      idx === voiceIndex ? { ...v, enabled: !v.enabled } : v
+    );
+    setVoices(updatedVoices);
+
+    // Update ABC string with new MIDI programs
+    const updatedAbcString = updateVoiceMidiPrograms(contents.allVoices || "", updatedVoices);
+    setCurrentAbcString(updatedAbcString);
+  };
+
   if (!isLoaded) {
     return <div className="p-4 text-muted-foreground">Loading music notation library...</div>;
   }
@@ -309,17 +372,26 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
         <h1 className="text-3xl font-bold">{title}</h1>
       </div>
 
-      <div className="flex gap-6 items-center border-b pb-4">
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="follow-cursor"
-            checked={followCursor}
-            onCheckedChange={setFollowCursor}
-          />
-          <Label htmlFor="follow-cursor">Follow cursor</Label>
-        </div>
+      <div className="space-y-3 border-b pb-4">
+        <div id="audio-controls" ref={audioRef} />
 
-        <div className="flex items-center space-x-4 flex-1 max-w-md">
+        {voices.length > 0 && (
+          <div className="flex flex-wrap gap-3 pt-2 border-t">
+            {voices.map((voice, idx) => (
+              <label key={idx} className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={voice.enabled}
+                  onChange={() => handleVoiceToggle(idx)}
+                  className="w-4 h-4 cursor-pointer"
+                />
+                <span>{voice.name}</span>
+              </label>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center space-x-4 max-w-md">
           <Label htmlFor="sheet-width" className="whitespace-nowrap">Sheet width:</Label>
           <Slider
             id="sheet-width"
@@ -335,10 +407,6 @@ export function MusicPlayer({ contents, title }: MusicPlayerProps) {
       </div>
 
       <div id="music-viewer" ref={containerRef} className="music-notation" />
-
-      <div className="border-t pt-4">
-        <div id="audio-controls" ref={audioRef} />
-      </div>
     </div>
   );
 }
