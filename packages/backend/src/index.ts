@@ -12,9 +12,11 @@ import userRoutes from "./routes/users";
 import featureFlagRoutes from "./routes/feature-flags";
 import bloodPressureRoutes from "./routes/blood-pressure";
 import musicRoutes from "./routes/music";
+import b2FilesRoutes from "./routes/b2files";
+import publicDownloadsRoutes from "./routes/public-downloads";
 
 // Import models to register associations
-import { FeatureFlag, User, Permission, UserPermission, BloodPressure, Music } from "./models";
+import { FeatureFlag, User, Permission, UserPermission, BloodPressure, Music, B2File, B2FileDownload } from "./models";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -66,6 +68,8 @@ app.use("/users", userRoutes);
 app.use("/feature-flags", featureFlagRoutes);
 app.use("/blood-pressure", bloodPressureRoutes);
 app.use("/music", musicRoutes);
+app.use("/b2files", b2FilesRoutes);
+app.use("/public", publicDownloadsRoutes);
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });

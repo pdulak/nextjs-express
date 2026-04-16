@@ -56,6 +56,9 @@ export function Navbar() {
                   <Link href="/blood-pressure">Blood Pressure</Link>
                 </Button>
                 <Button variant="ghost" size="sm" asChild>
+                  <Link href="/b2files">B2 Files</Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
                   <Link href="/profile">Profile</Link>
                 </Button>
                 <Button

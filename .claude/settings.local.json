@@ -15,7 +15,10 @@
       "Bash(xargs kill:*)",
       "Bash(curl:*)",
       "Bash(pnpm add:*)",
-      "Bash(npx shadcn@latest add:*)"
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(pnpm --filter backend build)",
+      "Bash(pnpm --filter frontend build)",
+      "Bash(git stash:*)"
     ]
   }
 }
