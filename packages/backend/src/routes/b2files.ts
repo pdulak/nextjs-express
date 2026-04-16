@@ -6,7 +6,7 @@ import { B2File, B2FileDownload } from "../models";
 import { isAuthenticated } from "../middleware/auth";
 import { authorizeAndGetUploadUrl, uploadFileToB2 } from "../lib/b2";
 
-const router = Router();
+const router: Router = Router();
 
 function formatTimestamp(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");

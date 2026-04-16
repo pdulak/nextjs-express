@@ -7,7 +7,7 @@ import { Op } from "sequelize";
 import { isAuthenticated } from "../middleware/auth";
 import { sendActivationEmail, sendPasswordResetEmail } from "../lib/email";
 
-const router = Router();
+const router: Router = Router();
 
 router.post("/register", async (req, res) => {
   try {

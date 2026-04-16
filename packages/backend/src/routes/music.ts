@@ -2,7 +2,7 @@ import { Router } from "express";
 import { Music } from "../models";
 import { isAuthenticated } from "../middleware/auth";
 
-const router = Router();
+const router: Router = Router();
 
 // Public routes - GET list and GET single
 router.get("/", async (req, res) => {

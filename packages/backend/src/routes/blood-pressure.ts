@@ -3,7 +3,7 @@ import { Op } from "sequelize";
 import { BloodPressure } from "../models";
 import { isAuthenticated } from "../middleware/auth";
 
-const router = Router();
+const router: Router = Router();
 
 router.use(isAuthenticated);
 

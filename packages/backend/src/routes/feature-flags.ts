@@ -2,7 +2,7 @@ import { Router } from "express";
 import { FeatureFlag } from "../models";
 import { isAuthenticated, hasPermission } from "../middleware/auth";
 
-const router = Router();
+const router: Router = Router();
 
 router.use(isAuthenticated, hasPermission("admin"));
 

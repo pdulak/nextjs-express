@@ -46,5 +46,5 @@ export function useABCJS() {
     // No cleanup - CSS and script should persist across page navigations
   }, []);
 
-  return { isLoaded, ABCJS: window.ABCJS };
+  return { isLoaded, ABCJS: typeof window !== 'undefined' ? window.ABCJS : null };
 }

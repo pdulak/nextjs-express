@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { B2File, B2FileDownload } from "../models";
 
-const router = Router();
+const router: Router = Router();
 
 router.get("/:slug", async (req, res) => {
   try {

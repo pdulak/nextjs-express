@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { User, Permission, UserPermission } from "../models";
 import { isAuthenticated, hasPermission } from "../middleware/auth";
 
-const router = Router();
+const router: Router = Router();
 
 router.use(isAuthenticated, hasPermission("admin"));
 

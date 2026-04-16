@@ -165,7 +165,7 @@ export function MusicPreview({ contents, disableSticky = false }: MusicPreviewPr
 
   // Setup audio controls
   useEffect(() => {
-    if (!isLoaded || !ABCJS || !audioRef.current || !containerRef.current || !currentAbcString?.trim()) return;
+    if (typeof window === 'undefined' || !isLoaded || !ABCJS || !audioRef.current || !containerRef.current || !currentAbcString?.trim()) return;
 
     const abcString = currentAbcString;
 

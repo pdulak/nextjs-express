@@ -52,7 +52,7 @@ export function AlertDialogTrigger({
     return React.cloneElement(children, {
       onClick: (e: React.MouseEvent) => {
         setOpen(true);
-        children.props.onClick?.(e);
+        (children.props as { onClick?: (e: React.MouseEvent) => void }).onClick?.(e);
       },
     } as any);
   }
