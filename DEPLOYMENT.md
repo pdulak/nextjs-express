@@ -11,13 +11,13 @@ The app runs as two Docker containers (backend on port 3001, frontend on port 30
 ```
 Internet
   └── Caddy (host, port 80/443, TLS termination)
-        ├── misc-2026.dulare.com  → localhost:3000  (Next.js frontend)
-        └── misc-2026-be.dulare.com → localhost:3001 (Express backend)
+        ├── misc2026.dulare.com  → localhost:3000  (Next.js frontend)
+        └── misc2026-be.dulare.com → localhost:3001 (Express backend)
 
 Server
   ├── Docker container: frontend  (Next.js, port 3000)
   └── Docker container: backend   (Express + SQLite, port 3001)
-        └── volume: ~/misc-2026/database/
+        └── volume: ~/misc2026/database/
 ```
 
 Deployments are triggered by pushing to `master`. GitHub Actions SSHs into the server and the server runs `deploy-upgrade.sh` (forced-command pattern), which does a `git pull` + `docker compose up --build`.
@@ -63,7 +63,7 @@ ssh-keygen -t ed25519 -C "github-actions-misc2026" -f ~/.ssh/misc2026_deploy
 On the server, add the public key to `~deploy/.ssh/authorized_keys` with a forced command so this key can only trigger deployments:
 
 ```
-command="/home/deploy/misc-2026/deploy-upgrade.sh",no-port-forwarding,no-X11-forwarding,no-agent-forwarding ssh-ed25519 AAAA...your-public-key...
+command="/home/deploy/misc2026/deploy-upgrade.sh",no-port-forwarding,no-X11-forwarding,no-agent-forwarding ssh-ed25519 AAAA...your-public-key...
 ```
 
 Add the **private** key (`~/.ssh/misc2026_deploy`) as the `MISC2026_SSH_PRIVATE_KEY` GitHub secret (paste the full content including the `-----BEGIN...` and `-----END...` lines).
@@ -76,8 +76,8 @@ Add the **private** key (`~/.ssh/misc2026_deploy`) as the `MISC2026_SSH_PRIVATE_
 
 ```bash
 ssh deploy@your-server
-git clone git@github.com:your-org/misc-nextjs-express.git ~/misc-2026
-cd ~/misc-2026
+git clone git@github.com:your-org/misc-nextjs-express.git ~/misc2026
+cd ~/misc2026
 chmod +x deploy-upgrade.sh
 ```
 
@@ -97,9 +97,9 @@ NODE_ENV=production
 PORT=3001
 FRONTEND_PORT=3000
 
-WEBSITE_URL=https://misc-2026.dulare.com
-API_URL=https://misc-2026-be.dulare.com
-GOOGLE_CALLBACK_URL=https://misc-2026-be.dulare.com/auth/google/callback
+WEBSITE_URL=https://misc2026.dulare.com
+API_URL=https://misc2026-be.dulare.com
+GOOGLE_CALLBACK_URL=https://misc2026-be.dulare.com/auth/google/callback
 
 COOKIE_DOMAIN=.dulare.com
 SESSION_SECRET=<generate with: openssl rand -hex 32>
@@ -142,11 +142,11 @@ Follow the prompts to create the admin account.
 Add two site blocks to `/etc/caddy/Caddyfile` (or a new file in `/etc/caddy/sites/`):
 
 ```caddy
-misc-2026.dulare.com {
+misc2026.dulare.com {
     reverse_proxy localhost:3000
 }
 
-misc-2026-be.dulare.com {
+misc2026-be.dulare.com {
     reverse_proxy localhost:3001
 }
 ```
@@ -162,11 +162,11 @@ Caddy will automatically obtain and renew TLS certificates via Let's Encrypt onc
 ### 6. Verify
 
 ```bash
-curl https://misc-2026-be.dulare.com/health
+curl https://misc2026-be.dulare.com/health
 # Expected: {"status":"ok"}
 ```
 
-Open `https://misc-2026.dulare.com` in a browser and confirm the frontend loads and login works.
+Open `https://misc2026.dulare.com` in a browser and confirm the frontend loads and login works.
 
 ---
 
@@ -191,7 +191,7 @@ When the old `misc.dulare.com` site is decommissioned and data is migrated, foll
 
 ```bash
 ssh deploy@your-server
-cd ~/misc-2026
+cd ~/misc2026
 nano .env
 ```
 
@@ -204,7 +204,7 @@ GOOGLE_CALLBACK_URL=https://misc-be.dulare.com/auth/google/callback
 
 ### 2. Update Caddy
 
-Replace the `misc-2026` blocks with the permanent domains:
+Replace the `misc2026` blocks with the permanent domains:
 
 ```caddy
 misc.dulare.com {
@@ -235,7 +235,7 @@ The frontend image must be rebuilt because `API_URL` is baked in at build time. 
 
 ```bash
 ssh deploy@your-server
-cd ~/misc-2026
+cd ~/misc2026
 ./deploy-upgrade.sh
 ```
 
@@ -248,7 +248,7 @@ curl https://misc-be.dulare.com/health
 
 Open `https://misc.dulare.com` and confirm everything works.
 
-Once confirmed, you can remove the `misc-2026` Caddy blocks and let the certificates for those domains expire.
+Once confirmed, you can remove the `misc2026` Caddy blocks and let the certificates for those domains expire.
 
 ---
 
