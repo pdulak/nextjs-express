@@ -25,8 +25,6 @@ app.set("trust proxy", 1);
 
 const allowedOrigins = [
   process.env.WEBSITE_URL || "http://localhost:3000",
-  "https://misc-fe.dulare.com",
-  "https://misc.dulare.com",
 ];
 
 app.use(
